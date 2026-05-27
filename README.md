@@ -259,7 +259,7 @@ flutter test
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/weather_capstone_app.git
+git clone https://github.com/randhir-darveys/weather_capstone_app.git
 ```
 
 ### 2. Move to Project Folder
