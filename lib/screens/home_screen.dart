@@ -1,18 +1,37 @@
 import 'package:flutter/material.dart';
 import '../models/weather_model.dart';
 import '../services/weather_service.dart';
-import '../widgets/weather_card.dart';
 import '../widgets/error_message.dart';
+import '../widgets/weather_card.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final WeatherService weatherService = WeatherService();
+  State<HomeScreen> createState() => _HomeScreenState();
+}
 
+class _HomeScreenState extends State<HomeScreen> {
+  final WeatherService weatherService = WeatherService();
+
+  late Future<WeatherModel> weatherFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    weatherFuture = weatherService.fetchWeatherByCurrentLocation();
+  }
+
+  void retryWeather() {
+    setState(() {
+      weatherFuture = weatherService.fetchWeatherByCurrentLocation();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return FutureBuilder<WeatherModel>(
-      future: weatherService.fetchWeatherByCity('Gurgaon'),
+      future: weatherFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -23,6 +42,7 @@ class HomeScreen extends StatelessWidget {
         if (snapshot.hasError) {
           return ErrorMessage(
             message: snapshot.error.toString().replaceAll('Exception: ', ''),
+            onRetry: retryWeather,
           );
         }
 
@@ -38,14 +58,14 @@ class HomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Today Weather',
+                'Current Location Weather',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
               const Text(
-                'Live weather data from Open-Meteo API',
+                'Live weather based on your GPS location',
                 style: TextStyle(color: Colors.grey),
               ),
               const SizedBox(height: 24),
